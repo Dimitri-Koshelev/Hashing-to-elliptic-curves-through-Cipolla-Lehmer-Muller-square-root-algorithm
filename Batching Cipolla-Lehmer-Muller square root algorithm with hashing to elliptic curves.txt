@@ -1,0 +1,217 @@
+///////////////////////////////////////////////////////////////////////////////
+// The beginning of Section 2
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The j-invariant of an elliptic curve E
+F := Rationals();
+F<a2,a4,a6> := FunctionField(F, 3);
+E := EllipticCurve([0, a2, 0, a4, a6]);
+E;
+j := jInvariant(E);
+j eq -2^8*(a2^2 - 3*a4)^3 / ( 4*a2^3*a6 - a2^2*a4^2 - 18*a2*a4*a6 + 4*a4^3 + 27*a6^2 );
+
+// a6 = 0 and j = 1728
+j1728 := -2^8*(a2^2 - 3*a4)^3 - 1728*(-a2^2 + 4*a4)*a4^2;
+j1728 eq -2^6*a2^2*(2*a2^2 - 9*a4)^2;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The blow-up map blQ
+F := Rationals();
+F<v,h,T,sqrtDv> := FunctionField(F, 4);
+D := sqrtDv^2/v;
+N := (T^2 - D)/4;
+F<t> := FunctionField(F);
+Q := t^2 - T*t + N;
+
+A2<x,y> := AffineSpace(F, 2);
+Sh := Curve(A2, x^2 - v*y^2 - h );
+ShQ := Curve(A2, x^2 - v*y^2 - h*Q );
+
+cxx := t - T/2;
+cxy := sqrtDv/2;
+cyx := cxy/v;
+cyy := cxx;
+blQ := map<Sh -> ShQ | [
+    cxx*x + cxy*y, 
+    cyx*x + cyy*y
+]>;
+
+M := Matrix(F, 2, 2, [
+    cxx, cxy,
+    cyx, cyy
+]);
+Determinant(M) eq Q;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The parametrization invPrP0 of a conic C
+F := Rationals();
+F<a,b> := FunctionField(F, 2);
+A2<x,y> := AffineSpace(F, 2);
+C := Curve(A2, a*x^2 + b*y^2 + 1);
+P0 := GenericPoint(C);
+x0 := P0[1];
+y0 := P0[2]; 
+
+F := FunctionField(C);
+A1<u> := AffineSpace(F, 1);
+invPrP0 := map<A1 -> C | [
+    (a*x0*u^2 + 2*b*y0*u - b*x0) / (a*u^2 + b),
+    (a*y0*u^2 - 2*a*x0*u - b*y0) / (a*u^2 + b)
+]>;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Section 2.1
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The quadratic covers phi, phiT
+F := Rationals();
+F<v,r1,r2> := FunctionField(F, 3);
+a2 := -(r1 + r2);
+a4 := r1*r2;
+
+A2<x,y> := AffineSpace(F, 2);
+f := x*(x - r1)*(x - r2);
+E := Curve(A2, y^2 - f);
+ET := Curve(A2, v*y^2 - f);
+
+c := -a2*a4;
+del0 := -1/v;
+del1 := r1/(v*r2);
+del2 := r2/(v*r1);
+Q0 := x^2 - del0;
+Q1 := x^2 - del1;
+Q2 := x^2 - del2;
+h := c*Q0*Q1*Q2;
+H := Curve(A2, y^2 - h);
+
+phi := map<H -> E | [
+    a4*(v*x^2 + 1) / (-v*a2*x^2),
+    a4*y / (a2^2*x^3)
+]>;
+phiT := map<H -> ET | [
+    a4*(v*x^2 + 1) / -a2,
+    v*a4*y / a2^2
+]>;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Section 2.2
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The quadratic covers phi, phiT
+F := Rationals();
+F<v,r0,r1,r2> := FunctionField(F, 4);
+a2 := -(r0 + r1 + r2);
+a4 := r0*r1 + r0*r2 + r1*r2;
+a6 := -r0*r1*r2;
+
+A2<x,y> := AffineSpace(F, 2);
+f := (x - r0)*(x - r1)*(x - r2);
+E := Curve(A2, y^2 - f);
+ET := Curve(A2, v*y^2 - f);
+
+numy := (r0 - r1)*(r0 - r2)*(r1 - r2);
+denTx := a2^2 - 3*a4;
+R := r0*r1^2 + r1*r2^2 + r2*r0^2 + 3*a6;
+RT := r0*r2^2 + r1*r0^2 + r2*r1^2 + 3*a6;
+
+c := numy*denTx;
+del0 := (r2 - r0) / (v*(r0 - r1));
+del1 := (r0 - r1) / (v*(r1 - r2));
+del2 := (r1 - r2) / (v*(r2 - r0));
+Q0 := x^2 - del0;
+Q1 := x^2 - del1;
+Q2 := x^2 - del2;
+h := c*Q0*Q1*Q2;
+H := Curve(A2, y^2 - h);
+
+phi := map<H -> E | [
+    (v*R*x^2 - numy) / (v*denTx*x^2),
+    numy*y / (denTx^2*x^3)
+]>;
+phiT := map<H -> ET | [
+    (v*numy*x^2 + RT) / denTx,
+    v*numy*y / denTx^2
+]>;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+// The blow-up map blHath
+F := Rationals();
+F<sqrtv,r0,r1,r2> := FunctionField(F, 4);
+v := sqrtv^2;
+a2 := -(r0 + r1 + r2);
+a4 := r0*r1 + r0*r2 + r1*r2;
+a6 := -r0*r1*r2;
+
+numy := (r0 - r1)*(r0 - r2)*(r1 - r2);
+denTx := a2^2 - 3*a4;
+c := numy*denTx;
+del0 := (r2 - r0) / (v*(r0 - r1));
+del1 := (r0 - r1) / (v*(r1 - r2));
+del2 := (r1 - r2) / (v*(r2 - r0));
+
+F<t> := FunctionField(F);
+Q0 := t^2 - del0;
+Q1 := t^2 - del1;
+Q2 := t^2 - del2;
+h := c*Q0*Q1*Q2;
+h0 := c*Q1*Q2;
+h1 := c*Q2;
+
+PR<u> := PolynomialRing(F);
+F<gam0> := ext<F | u^2 - del0>;
+PR<u> := PolynomialRing(F);
+F<gam1> := ext<F | u^2 - del1>;
+gam2 := 1/(gam0*gam1*v*sqrtv);
+assert(gam2^2 eq del2);
+
+A2<x,y> := AffineSpace(F, 2);
+Sh := Curve(A2, x^2 - v*y^2 - h );
+Sh0 := Curve(A2, x^2 - v*y^2 - h0 );
+Sh1 := Curve(A2, x^2 - v*y^2 - h1 );
+Sc := Curve(A2, x^2 - v*y^2 - c );
+
+blQ0 := map<Sh0 -> Sh | [
+    t*x + gam0*sqrtv*y, 
+    gam0/sqrtv*x + t*y
+]>;
+blQ1Min := map<Sh1 -> Sh0 | [
+    t*x - gam1*sqrtv*y, 
+    -gam1/sqrtv*x + t*y
+]>;
+blQ2 := map<Sc -> Sh1 | [
+    t*x + gam2*sqrtv*y, 
+    gam2/sqrtv*x + t*y
+]>;
+
+rho := t^3 + (-gam0*gam1 + gam0*gam2 - gam1*gam2)*t;
+varrho := (gam0 - gam1 + gam2)*t^2 - gam0*gam1*gam2;
+blHath := map<Sc -> Sh | [
+    rho*x + sqrtv*varrho*y, 
+    varrho/sqrtv*x + rho*y
+]>;
+blHath eq blQ2*blQ1Min*blQ0;
