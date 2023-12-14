@@ -1,0 +1,389 @@
+///////////////////////////////////////////////////////////////////////////////
+// The beginning of Section 2
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The j-invariant of an elliptic curve E
+F := Rationals();
+F<a2,a4,a6> := FunctionField(F, 3);
+E := EllipticCurve([0, a2, 0, a4, a6]);
+E;
+j := jInvariant(E);
+j eq -2^8*(a2^2 - 3*a4)^3 / ( 4*a2^3*a6 - a2^2*a4^2 - 18*a2*a4*a6 + 4*a4^3 + 27*a6^2 );
+
+// a6 = 0 and j = 1728
+j1728 := -2^8*(a2^2 - 3*a4)^3 - 1728*(-a2^2 + 4*a4)*a4^2;
+j1728 eq -2^6*a2^2*(2*a2^2 - 9*a4)^2;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The blow-up map blQ
+F := Rationals();
+F<v,h,T,sqrtDv> := FunctionField(F, 4);
+D := sqrtDv^2/v;
+N := (T^2 - D)/4;
+F<t> := FunctionField(F);
+Q := t^2 - T*t + N;
+
+A2<x,y> := AffineSpace(F, 2);
+Sh := Curve(A2, x^2 - v*y^2 - h );
+ShQ := Curve(A2, x^2 - v*y^2 - h*Q );
+
+cxx := t - T/2;
+cxy := sqrtDv/2;
+cyx := cxy/v;
+cyy := cxx;
+blQ := map<Sh -> ShQ | [
+    cxx*x + cxy*y, 
+    cyx*x + cyy*y
+]>;
+
+M := Matrix(F, 2, 2, [
+    cxx, cxy,
+    cyx, cyy
+]);
+Determinant(M) eq Q;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The parametrization invPrP0 of a conic C
+F := Rationals();
+F<a,b> := FunctionField(F, 2);
+A2<x,y> := AffineSpace(F, 2);
+C := Curve(A2, a*x^2 + b*y^2 + 1);
+P0 := GenericPoint(C);
+x0 := P0[1];
+y0 := P0[2]; 
+
+F := FunctionField(C);
+A1<u> := AffineSpace(F, 1);
+invPrP0 := map<A1 -> C | [
+    (a*x0*u^2 + 2*b*y0*u - b*x0) / (a*u^2 + b),
+    (a*y0*u^2 - 2*a*x0*u - b*y0) / (a*u^2 + b)
+]>;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Section 2.1
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The quadratic covers phi, phiT
+F := Rationals();
+F<v,r1,r2> := FunctionField(F, 3);
+a2 := -(r1 + r2);
+a4 := r1*r2;
+
+A2<x,y> := AffineSpace(F, 2);
+f := x*(x - r1)*(x - r2);
+E := Curve(A2, y^2 - f);
+ET := Curve(A2, v*y^2 - f);
+
+c := -a2*a4;
+del0 := -1/v;
+del1 := r1/(v*r2);
+del2 := r2/(v*r1);
+Q0 := x^2 - del0;
+Q1 := x^2 - del1;
+Q2 := x^2 - del2;
+h := c*Q0*Q1*Q2;
+H := Curve(A2, y^2 - h);
+
+phi := map<H -> E | [
+    a4*(v*x^2 + 1) / (-v*a2*x^2),
+    a4*y / (a2^2*x^3)
+]>;
+phiT := map<H -> ET | [
+    a4*(v*x^2 + 1) / -a2,
+    v*a4*y / a2^2
+]>;
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Section 2.2
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+// The quadratic covers phi, phiT
+F := Rationals();
+F<v,r0,r1,r2> := FunctionField(F, 4);
+a2 := -(r0 + r1 + r2);
+a4 := r0*r1 + r0*r2 + r1*r2;
+a6 := -r0*r1*r2;
+
+A2<x,y> := AffineSpace(F, 2);
+f := (x - r0)*(x - r1)*(x - r2);
+E := Curve(A2, y^2 - f);
+ET := Curve(A2, v*y^2 - f);
+
+numy := (r0 - r1)*(r0 - r2)*(r1 - r2);
+denTx := a2^2 - 3*a4;
+R := r0*r1^2 + r1*r2^2 + r2*r0^2 + 3*a6;
+RT := r0*r2^2 + r1*r0^2 + r2*r1^2 + 3*a6;
+
+c := numy*denTx;
+del0 := (r2 - r0) / (v*(r0 - r1));
+del1 := (r0 - r1) / (v*(r1 - r2));
+del2 := (r1 - r2) / (v*(r2 - r0));
+Q0 := x^2 - del0;
+Q1 := x^2 - del1;
+Q2 := x^2 - del2;
+h := c*Q0*Q1*Q2;
+H := Curve(A2, y^2 - h);
+
+phi := map<H -> E | [
+    (v*R*x^2 - numy) / (v*denTx*x^2),
+    numy*y / (denTx^2*x^3)
+]>;
+phiT := map<H -> ET | [
+    (v*numy*x^2 + RT) / denTx,
+    v*numy*y / denTx^2
+]>;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+// The blow-up map blHath
+F := Rationals();
+F<sqrtv,r0,r1,r2> := FunctionField(F, 4);
+v := sqrtv^2;
+a2 := -(r0 + r1 + r2);
+a4 := r0*r1 + r0*r2 + r1*r2;
+a6 := -r0*r1*r2;
+
+numy := (r0 - r1)*(r0 - r2)*(r1 - r2);
+denTx := a2^2 - 3*a4;
+c := numy*denTx;
+del0 := (r2 - r0) / (v*(r0 - r1));
+del1 := (r0 - r1) / (v*(r1 - r2));
+del2 := (r1 - r2) / (v*(r2 - r0));
+
+F<t> := FunctionField(F);
+Q0 := t^2 - del0;
+Q1 := t^2 - del1;
+Q2 := t^2 - del2;
+h := c*Q0*Q1*Q2;
+h0 := c*Q1*Q2;
+h1 := c*Q2;
+
+PR<u> := PolynomialRing(F);
+F<gam0> := ext<F | u^2 - del0>;
+PR<u> := PolynomialRing(F);
+F<gam1> := ext<F | u^2 - del1>;
+gam2 := 1/(gam0*gam1*v*sqrtv);
+assert(gam2^2 eq del2);
+
+A2<x,y> := AffineSpace(F, 2);
+Sh := Curve(A2, x^2 - v*y^2 - h );
+Sh0 := Curve(A2, x^2 - v*y^2 - h0 );
+Sh1 := Curve(A2, x^2 - v*y^2 - h1 );
+Sc := Curve(A2, x^2 - v*y^2 - c );
+
+blQ0 := map<Sh0 -> Sh | [
+    t*x + gam0*sqrtv*y, 
+    gam0/sqrtv*x + t*y
+]>;
+blQ1Min := map<Sh1 -> Sh0 | [
+    t*x - gam1*sqrtv*y, 
+    -gam1/sqrtv*x + t*y
+]>;
+blQ2 := map<Sc -> Sh1 | [
+    t*x + gam2*sqrtv*y, 
+    gam2/sqrtv*x + t*y
+]>;
+
+rho := t^3 + (-gam0*gam1 + gam0*gam2 - gam1*gam2)*t;
+varrho := (gam0 - gam1 + gam2)*t^2 - gam0*gam1*gam2;
+blHath := map<Sc -> Sh | [
+    rho*x + sqrtv*varrho*y, 
+    varrho/sqrtv*x + rho*y
+]>;
+blHath eq blQ2*blQ1Min*blQ0;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// A reference variable-time implementation of the map e (underlying the new hash function H) to the curve NIST P-224
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+// Parameters of the curve NIST P-224
+q := 0xffffffffffffffffffffffffffffffff000000000000000000000001; 
+r := 0xffffffffffffffffffffffffffff16a2e0b8f03e13dd29455c5c2a3d;
+assert(IsPrime(q));
+assert(IsPrime(r));
+l := Ceiling(Log(2, q));
+v := Valuation(q-1, 2);
+assert(l eq 224);
+assert(v eq 96);
+assert(q mod 3 eq 1);
+assert(Ceiling(Log(2, v)) eq 7);
+
+a2 := 0;
+a4 := -3;
+a6 := 0xb4050a850c04b3abf54132565044b0b7d7bfd8ba270b39432355ffb4;
+Fq := GF(q);
+PR<x> := PolynomialRing(Fq);
+f := x^3 + a2*x^2 + a4*x + a6;
+E := EllipticCurve(f);
+assert(Order(E) eq r);
+
+
+/////////////////////////
+
+
+// Precomputations
+i := SquareRoot(Fq ! -1);
+while true do
+    v := Random(Fq);
+    if not IsSquare(v) then
+        break;
+    end if;
+end while;
+printf"(i, v) = (%o, %o)\n\n", i, v;
+
+Fq3<r0> := ext<Fq | f>;
+r1 := Frobenius(r0, Fq);
+r2 := Frobenius(r1, Fq);
+assert(r0 eq Frobenius(r2, Fq));
+assert(a2 eq -(r0 + r1 + r2));
+assert(a4 eq r0*r1 + r0*r2 + r1*r2);
+assert(a6 eq -r0*r1*r2);
+
+numy := (r0 - r1)*(r0 - r2)*(r1 - r2);
+denTx := a2^2 - 3*a4;
+R := r0*r1^2 + r1*r2^2 + r2*r0^2 + 3*a6;
+RT := r0*r2^2 + r1*r0^2 + r2*r1^2 + 3*a6;
+
+c := numy*denTx;
+printf"This is %o that c is a square in Fq\n\n", IsSquare(c);
+sqrtmcv := SquareRoot(-c/v);
+del0 := (r2 - r0) / (v*(r0 - r1));
+del1 := (r0 - r1) / (v*(r1 - r2));
+del2 := (r1 - r2) / (v*(r2 - r0));
+
+Fq6<sqrtv> := ext<Fq3 | x^2 - v>;
+PR<x> := PolynomialRing(Fq6);
+gam0 := Roots(x^2 - del0)[1][1];
+gam1 := Frobenius(gam0, Fq);
+gam2 := Frobenius(gam1, Fq);
+assert(-gam0 eq Frobenius(gam2, Fq));
+assert(gam1^2 eq del1);
+assert(gam2^2 eq del2);
+
+rho1 := -gam0*gam1 + gam0*gam2 - gam1*gam2;
+varrho0 := -gam0*gam1*gam2;
+varrho2 := gam0 - gam1 + gam2;
+
+
+////////////////////////////////
+
+
+// Functions
+invPrP0 := function(u, t)
+    x := sqrtmcv*(-2*v*u) / (u^2 - v);
+    y := sqrtmcv*(u^2 + v) / (u^2 - v);
+    return x, y, t;
+end function;
+
+blHath := function(X, Y, t)
+    rho := t^3 + rho1*t;
+    varrho := varrho2*t^2 + varrho0;
+    x := rho*X + sqrtv*varrho*Y;
+    y := varrho/sqrtv*X + rho*Y;
+    return x, y, t;
+end function;
+
+sigma := function(t)
+    x, y, t := invPrP0(t, t);
+    x, y, t := blHath(x, y, t);
+    return x, y, t;
+end function;
+
+phi := function(t, s)
+    x := (v*R*t^2 - numy) / (v*denTx*t^2);
+    y := numy*s / (denTx^2*t^3);
+    return x, y;
+end function;
+
+phiT := function(t, s)
+    x := (v*numy*t^2 + RT) / denTx;
+    y := v^2*numy*s / denTx^2;
+    return x, y;
+end function;
+
+// A fast constant-time implementation of the Legendre symbol must be here inserted
+LegendreSymbol := function(x);
+    if IsSquare(x) then
+        if x eq 0 then
+            return 0;
+        else 
+            return 1;
+        end if;
+    else
+        return -1;
+    end if;
+end function;
+
+// Muller's square root algorithm must be here inserted
+M := function(x, y, z2)
+    return SquareRoot(z2);
+end function;
+
+
+///////////////////////////////
+
+
+// Main
+t := Random(Fq);
+b := Random(0, 1);
+printf"(t, b) = (%o, %o)\n\n", t, b;
+x, y, t := sigma(t);
+ht := c*(t^2 - del0)*(t^2 - del1)*(t^2 - del2);
+L := LegendreSymbol(ht);
+
+if L eq 0 then 
+    X := 0*x;
+    Y := 0*y;
+    bpr := b;
+elif L eq 1 then
+    X := 1*x;
+    Y := 1*y;
+    bpr := 0;
+else
+    X := i*y;
+    Y := (i/v)*x;
+    bpr := 1;
+end if;
+
+if L eq 1 then
+    s := (-1)^b * M(X, Y, ht);
+else
+    s := (-1)^b * M(X, Y, ht/v);
+end if;
+
+b := bpr;
+if b eq 0 then
+    x, y := phi(t, s);
+else
+    x, y := phiT(t, s);
+end if;
+P := E ! [x, y, 1];
+printf"e(t, b) = %o", P;
